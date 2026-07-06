@@ -105,7 +105,7 @@ export default function ScoutClient({ username }: ScoutClientProps) {
         osc.type = "sine";
         osc.frequency.setValueAtTime(130, ctx.currentTime);
         osc.frequency.exponentialRampToValueAtTime(30, ctx.currentTime + 0.45);
-        gain.gain.setValueAtTime(0.45, ctx.currentTime);
+        gain.gain.setValueAtTime(0.5, ctx.currentTime);
         gain.gain.linearRampToValueAtTime(0.001, ctx.currentTime + 0.45);
         osc.start();
         osc.stop(ctx.currentTime + 0.45);
@@ -172,6 +172,8 @@ export default function ScoutClient({ username }: ScoutClientProps) {
   }, [username]);
 
   const handleOpenPack = () => {
+    if (revealStep !== "unopened") return; // Prevent double-trigger/overlapping timers on mobile taps
+
     // Start stadium fans cheering and deep bass rumble
     playSoundEffect("stadium_cheer");
     
@@ -394,55 +396,67 @@ Scout yours here: ${window.location.origin}
             </motion.div>
           )}
 
-          {data && !isLoading && revealStep === "position" && (
+          {data && !isLoading && (revealStep === "position" || revealStep === "nation") && (
             <motion.div
-              key="reveal-pos"
-              initial={{ opacity: 0, scale: 0.75 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 1.15 }}
-              transition={{ type: "spring", damping: 12, stiffness: 80 }}
+              key="walkout-reveal"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
               className="flex flex-col items-center justify-center text-center select-none py-12"
             >
-              <span className="text-[11px] uppercase tracking-[0.3em] text-slate-500 font-black mb-4">
-                Scouted Position
-              </span>
-              <h1 className="text-8xl sm:text-[180px] font-black font-inter text-white tracking-widest leading-none drop-shadow-[0_0_50px_rgba(255,255,255,0.25)]">
-                {data.cardDetails.position}
-              </h1>
-            </motion.div>
-          )}
-
-          {data && !isLoading && revealStep === "nation" && (
-            <motion.div
-              key="reveal-nat"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 1.1 }}
-              transition={{ duration: 0.4 }}
-              className="flex flex-col items-center justify-center text-center select-none py-8"
-            >
-              {/* Small position in header */}
-              <span className="text-4xl sm:text-5xl font-black font-inter text-slate-500 tracking-wider mb-8 uppercase">
-                {data.cardDetails.position}
-              </span>
-
-              {/* Pre-cached flag scales up */}
-              <div className="w-44 h-28 sm:w-56 sm:h-36 overflow-hidden rounded-2xl border border-white/20 bg-zinc-900 flex items-center justify-center shadow-[0_25px_60px_rgba(0,0,0,0.9)] mb-6">
-                {(data.cardDetails.flagCode || "un").toLowerCase() === "un" ? (
-                  <SkeletonFlag />
+              {/* Position Label - morphs position/size smoothly without unmounting */}
+              <motion.div
+                layout
+                transition={{ type: "spring", stiffness: 100, damping: 15 }}
+                className="flex flex-col items-center"
+              >
+                {revealStep === "position" ? (
+                  <div className="flex flex-col items-center">
+                    <span className="text-[11px] uppercase tracking-[0.3em] text-slate-500 font-black mb-4">
+                      Scouted Position
+                    </span>
+                    <h1 className="text-7xl sm:text-[160px] font-inter font-black text-white tracking-widest leading-none drop-shadow-[0_0_50px_rgba(255,255,255,0.25)]">
+                      {data.cardDetails.position}
+                    </h1>
+                  </div>
                 ) : (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={`https://flagcdn.com/w160/${data.cardDetails.flagCode.toLowerCase()}.png`}
-                    alt={data.cardDetails.nationName}
-                    className="w-full h-full object-cover"
-                  />
+                  <h1 className="text-4xl sm:text-5xl font-black font-inter text-slate-500 tracking-wider mb-8 uppercase">
+                    {data.cardDetails.position}
+                  </h1>
                 )}
-              </div>
+              </motion.div>
 
-              <h2 className="text-2xl sm:text-3xl font-black font-inter text-white uppercase tracking-[0.2em]">
-                {data.cardDetails.nationName}
-              </h2>
+              {/* Nation Flag Reveal - fades/scales in smoothly when revealStep transitions to "nation" */}
+              <div className="h-44 sm:h-56 flex items-center justify-center">
+                <AnimatePresence>
+                  {revealStep === "nation" && (
+                    <motion.div
+                      key="flag-reveal"
+                      initial={{ opacity: 0, scale: 0.6, y: 15 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.8 }}
+                      transition={{ type: "spring", stiffness: 80, damping: 12, delay: 0.1 }}
+                      className="flex flex-col items-center"
+                    >
+                      <div className="w-44 h-28 sm:w-56 sm:h-36 overflow-hidden rounded-2xl border border-white/20 bg-zinc-900 flex items-center justify-center shadow-[0_25px_60px_rgba(0,0,0,0.9)] mb-6">
+                        {(data.cardDetails.flagCode || "un").toLowerCase() === "un" ? (
+                          <SkeletonFlag />
+                        ) : (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={`https://flagcdn.com/w160/${data.cardDetails.flagCode.toLowerCase()}.png`}
+                            alt={data.cardDetails.nationName}
+                            className="w-full h-full object-cover"
+                          />
+                        )}
+                      </div>
+                      <h2 className="text-2xl sm:text-3xl font-black font-inter text-white uppercase tracking-[0.2em] drop-shadow-sm">
+                        {data.cardDetails.nationName}
+                      </h2>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </motion.div>
           )}
 
