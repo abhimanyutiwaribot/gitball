@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { scoutUser } from "../../../lib/github";
-import { calculateCardDetails } from "../../../lib/cardUtils";
+import { calculateCardDetails, getEasterEggCard } from "../../../lib/cardUtils";
 
 // Simple in-memory sliding-window rate limiter
 const ipCache = new Map<string, { count: number; resetTime: number }>();
@@ -60,6 +60,15 @@ export async function GET(request: NextRequest) {
   try {
     const token = process.env.GITHUB_TOKEN;
     const scoutData = await scoutUser(username, token);
+
+    // Intercept Easter Eggs to bypass AI processing and guarantee exact stats
+    const easterEgg = getEasterEggCard(username);
+    if (easterEgg) {
+      return NextResponse.json({
+        scoutData,
+        cardDetails: easterEgg
+      });
+    }
 
     // Try NVIDIA NIM AI integration first
     const nvidiaKey = process.env.NVIDIA_API_KEY;

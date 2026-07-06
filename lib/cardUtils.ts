@@ -296,7 +296,30 @@ export function calculateCardDetails(scoutData: ScoutData): CardDetails {
   }
 
   // Hardcode fun Easter Eggs for famous developers
-  const lowerUser = profile.username.toLowerCase();
+  const easterEgg = getEasterEggCard(profile.username);
+  if (easterEgg) {
+    return easterEgg;
+  }
+
+
+
+  return {
+    rarity,
+    position,
+    positionDesc,
+    flag,
+    flagCode,
+    nationName,
+    club,
+    stats: { pac, sho, pas, dri, def, phy },
+    ovr,
+    badges: finalBadges,
+    funFact,
+  };
+}
+
+export function getEasterEggCard(username: string): CardDetails | null {
+  const lowerUser = username.toLowerCase();
   if (lowerUser === "torvalds") {
     return {
       rarity: "Icon",
@@ -325,6 +348,20 @@ export function calculateCardDetails(scoutData: ScoutData): CardDetails {
       badges: ["Viral Creator", "Polylingual", "Speedster"],
       funFact: "Dribbles past bugs using reactive signals. Creator of Vue and Vite.",
     };
+  } else if (lowerUser === "abhimanyutiwaribot" || lowerUser === "abhimanyutwts") {
+    return {
+      rarity: "Icon",
+      position: "ST",
+      positionDesc: "Striker (GitBall Creator)",
+      flag: "🇮🇳",
+      flagCode: "IN",
+      nationName: "India",
+      club: "GitBall FC",
+      stats: { pac: 98, sho: 99, pas: 95, dri: 97, def: 85, phy: 90 },
+      ovr: 99,
+      badges: ["Legend", "Capitán", "Viral Creator"],
+      funFact: "Owner and creator of the GitBall pitch. Shoots code straight into top bins.",
+    };
   } else if (lowerUser === "gaearon") {
     return {
       rarity: "Icon",
@@ -340,20 +377,5 @@ export function calculateCardDetails(scoutData: ScoutData): CardDetails {
       funFact: "Co-created Redux and shaped modern React. Controls state in the midfield.",
     };
   }
-
-
-
-  return {
-    rarity,
-    position,
-    positionDesc,
-    flag,
-    flagCode,
-    nationName,
-    club,
-    stats: { pac, sho, pas, dri, def, phy },
-    ovr,
-    badges: finalBadges,
-    funFact,
-  };
+  return null;
 }
