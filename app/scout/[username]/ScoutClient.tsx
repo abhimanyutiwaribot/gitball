@@ -11,6 +11,17 @@ import GitballCard from "../../../components/GitballCard";
 import { CardDetails } from "../../../lib/cardUtils";
 import { ScoutData } from "../../../lib/github";
 
+const formatStatNumber = (num: number): string => {
+  if (num >= 1000000) {
+    const formatted = (num / 1000000).toFixed(1);
+    return `${formatted.endsWith(".0") ? formatted.slice(0, -2) : formatted}M+`;
+  }
+  if (num >= 1000) {
+    const formatted = (num / 1000).toFixed(1);
+    return `${formatted.endsWith(".0") ? formatted.slice(0, -2) : formatted}k+`;
+  }
+  return num.toString();
+};
 interface ScoutClientProps {
   username: string;
 }
@@ -529,19 +540,19 @@ Scout yours here: ${window.location.origin}
                 <div className="grid grid-cols-2 gap-2 mb-6 w-full text-left font-semibold text-slate-400">
                   <div className="p-3 bg-black border border-white/5 rounded-xl flex flex-col">
                     <span className="text-[8px] text-slate-500 uppercase font-black tracking-wider">Total Repos</span>
-                    <span className="text-white text-base font-black font-inter mt-0.5">{data.scoutData.profile.publicRepos}</span>
+                    <span className="text-white text-base font-black font-inter mt-0.5">{formatStatNumber(data.scoutData.profile.publicRepos)}</span>
                   </div>
                   <div className="p-3 bg-black border border-white/5 rounded-xl flex flex-col">
                     <span className="text-[8px] text-slate-500 uppercase font-black tracking-wider">Scouted Stars</span>
-                    <span className="text-white text-base font-black font-inter mt-0.5">{data.scoutData.repoStats.totalStars}</span>
+                    <span className="text-white text-base font-black font-inter mt-0.5">{formatStatNumber(data.scoutData.repoStats.totalStars)}</span>
                   </div>
                   <div className="p-3 bg-black border border-white/5 rounded-xl flex flex-col">
                     <span className="text-[8px] text-slate-500 uppercase font-black tracking-wider">Active Followers</span>
-                    <span className="text-white text-base font-black font-inter mt-0.5">{data.scoutData.profile.followers}</span>
+                    <span className="text-white text-base font-black font-inter mt-0.5">{formatStatNumber(data.scoutData.profile.followers)}</span>
                   </div>
                   <div className="p-3 bg-black border border-white/5 rounded-xl flex flex-col">
                     <span className="text-[8px] text-slate-500 uppercase font-black tracking-wider">Yearly Commits</span>
-                    <span className="text-white text-base font-black font-inter mt-0.5">{data.scoutData.contributions.totalContributions}</span>
+                    <span className="text-white text-base font-black font-inter mt-0.5">{formatStatNumber(data.scoutData.contributions.totalContributions)}</span>
                   </div>
                 </div>
 
