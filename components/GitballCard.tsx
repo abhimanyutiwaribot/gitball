@@ -82,7 +82,7 @@ const GitBallLogo = ({ theme = "dark" }: { theme?: "light" | "dark" }) => (
 );
 
 // Custom vector Skeleton Flag (Jolly Roger / Pirate fallback) with smooth theme transitions
-const SkeletonFlag = ({ theme = "dark" }: { theme?: "light" | "dark" }) => (
+export const SkeletonFlag = ({ theme = "dark" }: { theme?: "light" | "dark" }) => (
   <svg viewBox="0 0 40 26" className="w-full h-full transition-colors duration-500" fill="none" xmlns="http://www.w3.org/2000/svg">
     <rect width="40" height="26" fill={theme === "light" ? "#f1f5f9" : "#0c0a09"} className="transition-all duration-500" />
     {/* Crossed Bones */}

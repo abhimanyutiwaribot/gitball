@@ -4,10 +4,10 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Download, Share2, ArrowLeft, RotateCcw, AlertTriangle, Trophy, Volume2 } from "lucide-react";
+import { Download, Share2, ArrowLeft, RotateCcw, AlertTriangle, Trophy } from "lucide-react";
 import { toPng } from "html-to-image";
 import confetti from "canvas-confetti";
-import GitballCard from "../../../components/GitballCard";
+import GitballCard, { SkeletonFlag } from "../../../components/GitballCard";
 import { CardDetails } from "../../../lib/cardUtils";
 import { ScoutData } from "../../../lib/github";
 
@@ -25,12 +25,13 @@ export default function ScoutClient({ username }: ScoutClientProps) {
     cardDetails: CardDetails;
   } | null>(null);
 
-  const [packOpened, setPackOpened] = useState(false);
+  // walkout reveal stages: unopened -> opening -> position -> nation -> card
+  const [revealStep, setRevealStep] = useState<"unopened" | "opening" | "position" | "nation" | "card">("unopened");
   const [downloading, setDownloading] = useState(false);
   const [sharing, setSharing] = useState(false);
   const [cardTheme, setCardTheme] = useState<"light" | "dark">("dark");
 
-  // Audio Synthesizer zero-latency chimes
+  // Audio Synthesizer zero-latency chimes & 808 impacts
   const playSoundEffect = (type: "open" | "click" | "error") => {
     if (typeof window === "undefined") return;
     try {
@@ -57,16 +58,18 @@ export default function ScoutClient({ username }: ScoutClientProps) {
           osc.stop(start + 0.4);
         });
       } else if (type === "click") {
+        // Deep 808 sub-bass kick impact
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.connect(gain);
         gain.connect(ctx.destination);
         osc.type = "sine";
-        osc.frequency.setValueAtTime(659.25, ctx.currentTime);
-        gain.gain.setValueAtTime(0.05, ctx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.001, ctx.currentTime + 0.07);
+        osc.frequency.setValueAtTime(150, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(30, ctx.currentTime + 0.45);
+        gain.gain.setValueAtTime(0.45, ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.001, ctx.currentTime + 0.45);
         osc.start();
-        osc.stop(ctx.currentTime + 0.07);
+        osc.stop(ctx.currentTime + 0.45);
       } else if (type === "error") {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
@@ -120,12 +123,35 @@ export default function ScoutClient({ username }: ScoutClientProps) {
 
   const handleOpenPack = () => {
     playSoundEffect("open");
-    setPackOpened(true);
-    if (data && data.cardDetails.ovr >= 80) {
+    setRevealStep("opening");
+
+    // Phase 1: Reveal Position after 800ms
+    setTimeout(() => {
+      if (!activeDataChecked()) return;
+      playSoundEffect("click"); // 808 kick sound
+      setRevealStep("position");
+
+      // Phase 2: Reveal Nation flag after 1200ms
       setTimeout(() => {
-        triggerCelebration();
-      }, 250);
-    }
+        playSoundEffect("click"); // 808 kick sound
+        setRevealStep("nation");
+
+        // Phase 3: Reveal Full Card after 1200ms
+        setTimeout(() => {
+          playSoundEffect("open"); // Triumphant chord chime
+          setRevealStep("card");
+          if (data && data.cardDetails.ovr >= 80) {
+            triggerCelebration();
+          }
+        }, 1200);
+
+      }, 1200);
+
+    }, 800);
+  };
+
+  const activeDataChecked = () => {
+    return !!data;
   };
 
   const triggerCelebration = () => {
@@ -231,7 +257,6 @@ Scout yours here: ${window.location.origin}
           <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
           <span>Pitch Entry</span>
         </Link>
-        
       </header>
 
       {/* Main Container */}
@@ -278,12 +303,13 @@ Scout yours here: ${window.location.origin}
             </motion.div>
           )}
 
-          {data && !isLoading && !packOpened && (
+          {data && !isLoading && revealStep === "unopened" && (
             <motion.div
               key="pack"
               initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 1.02 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              transition={{ duration: 0.25 }}
               className="flex flex-col items-center"
             >
               <div
@@ -309,11 +335,82 @@ Scout yours here: ${window.location.origin}
             </motion.div>
           )}
 
-          {data && !isLoading && packOpened && (
+          {data && !isLoading && revealStep === "opening" && (
+            <motion.div
+              key="opening"
+              animate={{ 
+                scale: [1, 1.08, 0.9, 1.3], 
+                opacity: [1, 1, 0.9, 0],
+                rotate: [0, -3, 3, 0]
+              }}
+              transition={{ duration: 0.8, ease: "easeInOut" }}
+              className="relative w-[280px] h-[400px] flex flex-col justify-between p-8 bg-zinc-950 border border-white/20 rounded-3xl shadow-[0_0_50px_rgba(255,255,255,0.15)] text-center overflow-hidden"
+            >
+              <Trophy className="w-10 h-10 text-slate-400 mx-auto mt-8 animate-bounce" />
+              <div className="flex flex-col items-center">
+                <h3 className="text-xs uppercase tracking-widest text-white font-black animate-pulse">REVEALING PLAYER</h3>
+              </div>
+              <div className="w-full bg-white/10 h-1 rounded-full overflow-hidden">
+                <div className="w-full h-full bg-white animate-pulse" />
+              </div>
+            </motion.div>
+          )}
+
+          {data && !isLoading && revealStep === "position" && (
+            <motion.div
+              key="reveal-pos"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 1.1 }}
+              transition={{ duration: 0.3 }}
+              className="flex flex-col items-center justify-center text-center select-none py-12"
+            >
+              <span className="text-[10px] uppercase tracking-widest text-slate-500 font-extrabold mb-3">
+                Scouted Position
+              </span>
+              <h1 className="text-8xl sm:text-[140px] font-black font-inter text-white tracking-widest leading-none drop-shadow-[0_0_30px_rgba(255,255,255,0.1)]">
+                {data.cardDetails.position}
+              </h1>
+            </motion.div>
+          )}
+
+          {data && !isLoading && revealStep === "nation" && (
+            <motion.div
+              key="reveal-nat"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 1.1 }}
+              transition={{ duration: 0.3 }}
+              className="flex flex-col items-center justify-center text-center select-none py-8"
+            >
+              <h1 className="text-4xl sm:text-5xl font-black font-inter text-slate-500 tracking-wider mb-8">
+                {data.cardDetails.position}
+              </h1>
+              
+              <div className="w-36 h-22 sm:w-48 sm:h-30 overflow-hidden rounded-xl border border-white/20 bg-zinc-900 flex items-center justify-center shadow-[0_15px_50px_rgba(0,0,0,0.8)] relative mb-6">
+                {(data.cardDetails.flagCode || "un").toLowerCase() === "un" ? (
+                  <SkeletonFlag />
+                ) : (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={`https://flagcdn.com/w160/${data.cardDetails.flagCode.toLowerCase()}.png`}
+                    alt={data.cardDetails.nationName}
+                    className="w-full h-full object-cover"
+                  />
+                )}
+              </div>
+              
+              <h2 className="text-xl sm:text-2xl font-bold font-inter text-white uppercase tracking-widest drop-shadow-sm">
+                {data.cardDetails.nationName}
+              </h2>
+            </motion.div>
+          )}
+
+          {data && !isLoading && revealStep === "card" && (
             <motion.div
               key="details"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
               className="flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-12 w-full px-2"
             >
               {/* Left Side: Card Frame */}
