@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Inter, Handjet } from "next/font/google";
+import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -25,11 +26,11 @@ const handjet = Handjet({
 export const metadata: Metadata = {
   title: "GitBall 2026 - Scout Your GitHub Card",
   description: "Scout your collectible 2026 World Cup style player card based on public repository stats and language skills.",
-  metadataBase: new URL("https://gitball.com"), // Placeholder URL to satisfy Next.js metadata base rules
+  metadataBase: new URL("https://gitball.vercel.app"), // Placeholder URL to satisfy Next.js metadata base rules
   openGraph: {
     title: "GitBall 2026 - Scout Your GitHub Card",
     description: "Inspect stats, roles, and scouting facts to render your customized card.",
-    url: "https://gitball.com",
+    url: "https://gitball.vercel.app",
     siteName: "GitBall",
     images: [
       {
@@ -65,7 +66,10 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} ${handjet.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col font-sans text-white bg-slate-950">{children}</body>
+      <body className="min-h-full flex flex-col font-sans text-white bg-slate-950">
+        {children}
+        <Analytics />
+      </body>
     </html>
   );
 }

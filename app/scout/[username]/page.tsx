@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     openGraph: {
       title: `Scout Report: @${username} | GitBall 2026`,
       description: `Inspect the GitHub 2026 World Cup style player card for @${username} on GitBall!`,
-      url: `https://gitball.com/scout/${username}`,
+      url: `https://gitball.vercel.app/scout/${username}`,
       images: [
         {
           url: "/gitball-opengraph-image.png",
