@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     siteName: "GitBall",
     images: [
       {
-        url: "/gitball-logo.svg",
+        url: "/gitball-opengraph-image.png",
         width: 800,
         height: 600,
         alt: "GitBall 2026 Mascot Badge Logo",
@@ -46,7 +46,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "GitBall 2026 - Scout Your GitHub Card",
     description: "Inspect stats, roles, and scouting facts to render your customized card.",
-    images: ["/gitball-logo.svg"],
+    images: ["/gitball-opengraph-image.png"],
     creator: "@abhimanyutwts",
   },
   robots: {

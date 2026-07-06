@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       url: `https://gitball.com/scout/${username}`,
       images: [
         {
-          url: "/gitball-logo.svg",
+          url: "/gitball-opengraph-image.png",
           width: 800,
           height: 600,
           alt: "GitBall 2026 Scout Card Badge",
@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       card: "summary_large_image",
       title: `Scout Report: @${username} | GitBall 2026`,
       description: `Inspect the GitHub 2026 World Cup style player card for @${username} on GitBall!`,
-      images: ["/gitball-logo.svg"],
+      images: ["/gitball-opengraph-image.png"],
     },
   };
 }
