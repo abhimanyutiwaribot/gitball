@@ -1,19 +1,11 @@
 # GitBall 2026 ⚽🏆
 
-GitBall 2026 is a premium, minimalist developer scouting dashboard for the 2026 World Cup. It converts real-time public GitHub stats (stars, commits, streaks, followers) into collectible, custom-themed player cards using NVIDIA NIM AI models.
-
+GitBall lets you create your worldcup card using your github username.
 ---
 
 ## Key Features
 
-- 🃏 **Fanned Card Showcase**: A sleek, overlapping player deck showcase on the landing hero section.
-- 🎨 **Dynamic Card Themes**: Custom-themed Gold, Silver, Legendary (Icon), and Bronze cards. Switch between **Light** and **Dark** designs on the fly with a sliding pill toggle.
-- 💫 **GPU-Accelerated 3D Hover**: Smooth hardware-accelerated mouse coordinate card tilt animations.
-- 📸 **High-Resolution PNG Exports**: Sharp `3x` pixel ratio downsampled PNG card images, ready to print or share.
-- 🔒 **API Security & Limits**: Strict GitHub username regex filters (against SSRF) and sliding-window rate limit checks (10 requests/min per IP) to protect AI completions.
-- 🎯 **Dynamic Server-Side SEO**: Dynamic metadata generation (`generateMetadata`) for dynamic route crawling and rich social share previews (X/Twitter, Slack).
-- 🔊 **Zero-Latency Audio Cues**: Retro arcade chimes synthesized in real-time using the browser Web Audio API.
-- 🐣 **Custom Easter Eggs**: Hardcoded 99-OVR Legendary cards for famous developers (Linus Torvalds, Evan You, Dan Abramov) and the creator (`abhimanyutiwaribot`), bypassing AI processing while preserving real profile photos.
+check here:- https://gitball.vercel.app
 
 ---
 
