@@ -25,46 +25,85 @@ export default function ScoutClient({ username }: ScoutClientProps) {
     cardDetails: CardDetails;
   } | null>(null);
 
-  // walkout reveal stages: unopened -> opening -> position -> nation -> card
-  const [revealStep, setRevealStep] = useState<"unopened" | "opening" | "position" | "nation" | "card">("unopened");
+  // walkout reveal stages: unopened -> position -> nation -> card
+  const [revealStep, setRevealStep] = useState<"unopened" | "position" | "nation" | "card">("unopened");
   const [downloading, setDownloading] = useState(false);
   const [sharing, setSharing] = useState(false);
   const [cardTheme, setCardTheme] = useState<"light" | "dark">("dark");
 
-  // Audio Synthesizer zero-latency chimes & 808 impacts
-  const playSoundEffect = (type: "open" | "click" | "error") => {
+  // Audio Synthesizer stadium crowd roar & deep whooshes
+  const playSoundEffect = (type: "open" | "click" | "stadium_cheer" | "error") => {
     if (typeof window === "undefined") return;
     try {
       const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
       if (!AudioCtx) return;
       const ctx = new AudioCtx();
 
-      if (type === "open") {
-        const notes = [523.25, 659.25, 783.99, 1046.50];
-        notes.forEach((freq, index) => {
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.type = "sine";
-          osc.frequency.setValueAtTime(freq, ctx.currentTime + index * 0.08);
-          
-          const start = ctx.currentTime + index * 0.08;
-          gain.gain.setValueAtTime(0, ctx.currentTime);
-          gain.gain.linearRampToValueAtTime(0.12, start + 0.02);
-          gain.gain.exponentialRampToValueAtTime(0.001, start + 0.4);
-          
-          osc.start(start);
-          osc.stop(start + 0.4);
-        });
-      } else if (type === "click") {
-        // Deep 808 sub-bass kick impact
+      if (type === "stadium_cheer") {
+        // Synthesizes dynamic white noise bandpass filtered for crowd cheering sounds
+        const bufferSize = ctx.sampleRate * 4.5; 
+        const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        const dataChannel = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          dataChannel[i] = Math.random() * 2 - 1;
+        }
+
+        const noiseNode = ctx.createBufferSource();
+        noiseNode.buffer = buffer;
+
+        // Bandpass filter to shape white noise to frequency profile of cheering crowd (1k Hz range)
+        const filter = ctx.createBiquadFilter();
+        filter.type = "bandpass";
+        filter.frequency.value = 950;
+        filter.Q.value = 1.0;
+
+        // Crowd roar volume envelope curve (swell up and fade out)
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(0, ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.35, ctx.currentTime + 0.8);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 4.3);
+
+        noiseNode.connect(filter);
+        filter.connect(gain);
+        gain.connect(ctx.destination);
+
+        // Sub bass oscillator for heavy stadium roar vibrations
+        const subOsc = ctx.createOscillator();
+        const subGain = ctx.createGain();
+        subOsc.type = "sine";
+        subOsc.frequency.setValueAtTime(50, ctx.currentTime);
+        subGain.gain.setValueAtTime(0, ctx.currentTime);
+        subGain.gain.linearRampToValueAtTime(0.45, ctx.currentTime + 0.4);
+        subGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2.5);
+
+        subOsc.connect(subGain);
+        subGain.connect(ctx.destination);
+
+        noiseNode.start();
+        subOsc.start();
+        noiseNode.stop(ctx.currentTime + 4.5);
+        subOsc.stop(ctx.currentTime + 4.5);
+      } else if (type === "open") {
+        // Deep whoosh/swell sound instead of chime notes to avoid "tong tong" audio
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.connect(gain);
         gain.connect(ctx.destination);
         osc.type = "sine";
-        osc.frequency.setValueAtTime(150, ctx.currentTime);
+        osc.frequency.setValueAtTime(100, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(320, ctx.currentTime + 0.5);
+        gain.gain.setValueAtTime(0.25, ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.5);
+      } else if (type === "click") {
+        // Deep 808 impact
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(130, ctx.currentTime);
         osc.frequency.exponentialRampToValueAtTime(30, ctx.currentTime + 0.45);
         gain.gain.setValueAtTime(0.45, ctx.currentTime);
         gain.gain.linearRampToValueAtTime(0.001, ctx.currentTime + 0.45);
@@ -104,6 +143,17 @@ export default function ScoutClient({ username }: ScoutClientProps) {
         }
 
         const json = await response.json();
+
+        // PRE-CACHE ASSETS IN THE BROWSER before resolving the loader to prevent lag/blank frames
+        if (json.cardDetails.flagCode && json.cardDetails.flagCode.toLowerCase() !== "un") {
+          const flagImg = new Image();
+          flagImg.src = `https://flagcdn.com/w160/${json.cardDetails.flagCode.toLowerCase()}.png`;
+        }
+        if (json.scoutData?.profile?.avatarUrl) {
+          const avatarImg = new Image();
+          avatarImg.src = json.scoutData.profile.avatarUrl;
+        }
+
         setData(json);
         setIsLoading(false);
       } catch (err: any) {
@@ -122,52 +172,43 @@ export default function ScoutClient({ username }: ScoutClientProps) {
   }, [username]);
 
   const handleOpenPack = () => {
-    playSoundEffect("open");
-    setRevealStep("opening");
+    // Start stadium fans cheering and deep bass rumble
+    playSoundEffect("stadium_cheer");
+    
+    // Skip the generic opening text/layer and go directly into the position reveal
+    setRevealStep("position");
 
-    // Phase 1: Reveal Position after 800ms
+    // Phase 1: Reveal Nation flag after 1600ms to build suspense
     setTimeout(() => {
-      if (!activeDataChecked()) return;
-      playSoundEffect("click"); // 808 kick sound
-      setRevealStep("position");
+      playSoundEffect("click"); // 808 kick impact
+      setRevealStep("nation");
 
-      // Phase 2: Reveal Nation flag after 1200ms
+      // Phase 2: Final Card Reveal after 1800ms
       setTimeout(() => {
-        playSoundEffect("click"); // 808 kick sound
-        setRevealStep("nation");
+        playSoundEffect("stadium_cheer"); // Stadium roar at final card reveal
+        setRevealStep("card");
+        if (data && data.cardDetails.ovr >= 80) {
+          triggerCelebration();
+        }
+      }, 1800);
 
-        // Phase 3: Reveal Full Card after 1200ms
-        setTimeout(() => {
-          playSoundEffect("open"); // Triumphant chord chime
-          setRevealStep("card");
-          if (data && data.cardDetails.ovr >= 80) {
-            triggerCelebration();
-          }
-        }, 1200);
-
-      }, 1200);
-
-    }, 800);
-  };
-
-  const activeDataChecked = () => {
-    return !!data;
+    }, 1600);
   };
 
   const triggerCelebration = () => {
-    const duration = 2 * 1000;
+    const duration = 2.5 * 1000;
     const end = Date.now() + duration;
 
     (function frame() {
       confetti({
-        particleCount: 3,
+        particleCount: 4,
         angle: 60,
         spread: 55,
         origin: { x: 0, y: 0.8 },
         colors: ["#ffffff", "#eab308", "#1e293b"],
       });
       confetti({
-        particleCount: 3,
+        particleCount: 4,
         angle: 120,
         spread: 55,
         origin: { x: 1, y: 0.8 },
@@ -247,9 +288,27 @@ Scout yours here: ${window.location.origin}
   };
 
   return (
-    <main className="flex-1 w-full min-h-screen bg-[#040d0a] flex flex-col justify-between text-slate-100 relative px-6 py-6 font-inter">
+    <main className="flex-1 w-full min-h-screen bg-[#040d0a] flex flex-col justify-between text-slate-100 relative px-6 py-6 font-inter overflow-x-hidden">
       {/* Subtle lines behind (Pitch theme) */}
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none" />
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none z-0" />
+
+      {/* Stadium Spotlight Beams (Always rendering in the background at root level) */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+        {/* Center radial flare */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[radial-gradient(circle_at_center,rgba(234,179,8,0.12)_0%,transparent_70%)] blur-[80px]" />
+        
+        {/* Left spotlight beam */}
+        <div 
+          className="absolute top-0 left-1/4 w-[160px] h-[200%] bg-gradient-to-b from-white/10 via-white/2 to-transparent origin-top blur-[50px]" 
+          style={{ animation: "spotlight-left 4s ease-in-out infinite alternate" }}
+        />
+        
+        {/* Right spotlight beam */}
+        <div 
+          className="absolute top-0 right-1/4 w-[160px] h-[200%] bg-gradient-to-b from-white/10 via-white/2 to-transparent origin-top blur-[50px]" 
+          style={{ animation: "spotlight-right 4.5s ease-in-out infinite alternate" }}
+        />
+      </div>
 
       {/* Header */}
       <header className="w-full max-w-4xl mx-auto flex justify-between items-center z-20">
@@ -260,7 +319,7 @@ Scout yours here: ${window.location.origin}
       </header>
 
       {/* Main Container */}
-      <div className="flex-1 flex flex-col items-center justify-center max-w-4xl mx-auto w-full z-20 py-8">
+      <div className="flex-1 flex flex-col items-center justify-center max-w-4xl mx-auto w-full z-20 py-8 relative">
         <AnimatePresence mode="wait">
           {isLoading && (
             <motion.div
@@ -335,40 +394,19 @@ Scout yours here: ${window.location.origin}
             </motion.div>
           )}
 
-          {data && !isLoading && revealStep === "opening" && (
-            <motion.div
-              key="opening"
-              animate={{ 
-                scale: [1, 1.08, 0.9, 1.3], 
-                opacity: [1, 1, 0.9, 0],
-                rotate: [0, -3, 3, 0]
-              }}
-              transition={{ duration: 0.8, ease: "easeInOut" }}
-              className="relative w-[280px] h-[400px] flex flex-col justify-between p-8 bg-zinc-950 border border-white/20 rounded-3xl shadow-[0_0_50px_rgba(255,255,255,0.15)] text-center overflow-hidden"
-            >
-              <Trophy className="w-10 h-10 text-slate-400 mx-auto mt-8 animate-bounce" />
-              <div className="flex flex-col items-center">
-                <h3 className="text-xs uppercase tracking-widest text-white font-black animate-pulse">REVEALING PLAYER</h3>
-              </div>
-              <div className="w-full bg-white/10 h-1 rounded-full overflow-hidden">
-                <div className="w-full h-full bg-white animate-pulse" />
-              </div>
-            </motion.div>
-          )}
-
           {data && !isLoading && revealStep === "position" && (
             <motion.div
               key="reveal-pos"
-              initial={{ opacity: 0, scale: 0.8 }}
+              initial={{ opacity: 0, scale: 0.75 }}
               animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 1.1 }}
-              transition={{ duration: 0.3 }}
+              exit={{ opacity: 0, scale: 1.15 }}
+              transition={{ type: "spring", damping: 12, stiffness: 80 }}
               className="flex flex-col items-center justify-center text-center select-none py-12"
             >
-              <span className="text-[10px] uppercase tracking-widest text-slate-500 font-extrabold mb-3">
+              <span className="text-[11px] uppercase tracking-[0.3em] text-slate-500 font-black mb-4">
                 Scouted Position
               </span>
-              <h1 className="text-8xl sm:text-[140px] font-black font-inter text-white tracking-widest leading-none drop-shadow-[0_0_30px_rgba(255,255,255,0.1)]">
+              <h1 className="text-8xl sm:text-[180px] font-black font-inter text-white tracking-widest leading-none drop-shadow-[0_0_50px_rgba(255,255,255,0.25)]">
                 {data.cardDetails.position}
               </h1>
             </motion.div>
@@ -377,17 +415,19 @@ Scout yours here: ${window.location.origin}
           {data && !isLoading && revealStep === "nation" && (
             <motion.div
               key="reveal-nat"
-              initial={{ opacity: 0, scale: 0.9 }}
+              initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 1.1 }}
-              transition={{ duration: 0.3 }}
+              transition={{ duration: 0.4 }}
               className="flex flex-col items-center justify-center text-center select-none py-8"
             >
-              <h1 className="text-4xl sm:text-5xl font-black font-inter text-slate-500 tracking-wider mb-8">
+              {/* Small position in header */}
+              <span className="text-4xl sm:text-5xl font-black font-inter text-slate-500 tracking-wider mb-8 uppercase">
                 {data.cardDetails.position}
-              </h1>
-              
-              <div className="w-36 h-22 sm:w-48 sm:h-30 overflow-hidden rounded-xl border border-white/20 bg-zinc-900 flex items-center justify-center shadow-[0_15px_50px_rgba(0,0,0,0.8)] relative mb-6">
+              </span>
+
+              {/* Pre-cached flag scales up */}
+              <div className="w-44 h-28 sm:w-56 sm:h-36 overflow-hidden rounded-2xl border border-white/20 bg-zinc-900 flex items-center justify-center shadow-[0_25px_60px_rgba(0,0,0,0.9)] mb-6">
                 {(data.cardDetails.flagCode || "un").toLowerCase() === "un" ? (
                   <SkeletonFlag />
                 ) : (
@@ -399,8 +439,8 @@ Scout yours here: ${window.location.origin}
                   />
                 )}
               </div>
-              
-              <h2 className="text-xl sm:text-2xl font-bold font-inter text-white uppercase tracking-widest drop-shadow-sm">
+
+              <h2 className="text-2xl sm:text-3xl font-black font-inter text-white uppercase tracking-[0.2em]">
                 {data.cardDetails.nationName}
               </h2>
             </motion.div>

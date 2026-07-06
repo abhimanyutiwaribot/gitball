@@ -194,3 +194,13 @@ body {
 .animate-card-swipe {
   animation: card-swipe 0.75s cubic-bezier(0.76, 0, 0.24, 1) forwards;
 }
+
+/* Stadium Spotlight Animations */
+@keyframes spotlight-left {
+  0% { transform: rotate(-20deg) scaleX(1); opacity: 0.2; }
+  100% { transform: rotate(-5deg) scaleX(1.2); opacity: 0.5; }
+}
+@keyframes spotlight-right {
+  0% { transform: rotate(20deg) scaleX(1); opacity: 0.2; }
+  100% { transform: rotate(5deg) scaleX(1.2); opacity: 0.5; }
+}
