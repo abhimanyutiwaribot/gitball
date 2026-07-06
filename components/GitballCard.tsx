@@ -218,20 +218,19 @@ export default function GitballCard({ details, avatarUrl, username, name, theme 
                   {details.ovr}
                 </span>
 
-                {/* Flag Image (avoids broken Windows text shortcodes) */}
-                <div className={`w-10 h-6.5 overflow-hidden rounded-sm border ${borderClass} flex items-center justify-center ${theme === "light" ? "bg-slate-100" : "bg-zinc-900"} shrink-0 select-none drop-shadow-sm transition-all duration-500`}>
-                  {(details.flagCode || "un").toLowerCase() === "un" ? (
-                    <span className="text-base select-none leading-none">🏴‍☠️</span>
-                  ) : (
-                    /* eslint-disable-next-line @next/next/no-img-element */
+                {(details.flagCode || "un").toLowerCase() === "un" ? (
+                  <span className="text-2xl select-none leading-none shrink-0 drop-shadow-sm">🏴‍☠️</span>
+                ) : (
+                  <div className={`w-10 h-6.5 overflow-hidden rounded-sm border ${borderClass} flex items-center justify-center ${theme === "light" ? "bg-slate-100" : "bg-zinc-900"} shrink-0 select-none drop-shadow-sm transition-all duration-500`}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={`https://flagcdn.com/w80/${details.flagCode.toLowerCase()}.png`}
                       alt={details.nationName}
                       className="w-full h-full object-cover"
                       crossOrigin="anonymous"
                     />
-                  )}
-                </div>
+                  </div>
+                )}
 
                 {/* Position label */}
                 <span className={`text-lg font-black font-inter ${labelClass} uppercase tracking-wider leading-none select-none drop-shadow-sm transition-colors duration-500`}>

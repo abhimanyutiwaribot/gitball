@@ -412,9 +412,6 @@ Scout yours here: ${window.location.origin}
               >
                 {revealStep === "position" ? (
                   <div className="flex flex-col items-center">
-                    <span className="text-[11px] uppercase tracking-[0.3em] text-slate-500 font-black mb-4">
-                      Scouted Position
-                    </span>
                     <h1 className="text-7xl sm:text-[160px] font-inter font-black text-white tracking-widest leading-none drop-shadow-[0_0_50px_rgba(255,255,255,0.25)]">
                       {data.cardDetails.position}
                     </h1>
@@ -438,21 +435,18 @@ Scout yours here: ${window.location.origin}
                       transition={{ type: "spring", stiffness: 80, damping: 12, delay: 0.1 }}
                       className="flex flex-col items-center"
                     >
-                      <div className="w-44 h-28 sm:w-56 sm:h-36 overflow-hidden rounded-2xl border border-white/20 bg-zinc-900 flex items-center justify-center shadow-[0_25px_60px_rgba(0,0,0,0.9)] mb-6">
-                        {(data.cardDetails.flagCode || "un").toLowerCase() === "un" ? (
-                          <span className="text-5xl sm:text-6xl select-none">🏴‍☠️</span>
-                        ) : (
-                          // eslint-disable-next-line @next/next/no-img-element
+                      {(data.cardDetails.flagCode || "un").toLowerCase() === "un" ? (
+                        <span className="text-7xl sm:text-8xl select-none mb-6">🏴‍☠️</span>
+                      ) : (
+                        <div className="w-44 h-28 sm:w-56 sm:h-36 overflow-hidden rounded-2xl border border-white/20 bg-zinc-900 flex items-center justify-center shadow-[0_25px_60px_rgba(0,0,0,0.9)] mb-6">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
                             src={`https://flagcdn.com/w160/${data.cardDetails.flagCode.toLowerCase()}.png`}
                             alt={data.cardDetails.nationName}
                             className="w-full h-full object-cover"
                           />
-                        )}
-                      </div>
-                      <h2 className="text-2xl sm:text-3xl font-black font-inter text-white uppercase tracking-[0.2em] drop-shadow-sm">
-                        {data.cardDetails.nationName}
-                      </h2>
+                        </div>
+                      )}
                     </motion.div>
                   )}
                 </AnimatePresence>
