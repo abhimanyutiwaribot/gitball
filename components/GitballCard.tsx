@@ -221,7 +221,7 @@ export default function GitballCard({ details, avatarUrl, username, name, theme 
                 {/* Flag Image (avoids broken Windows text shortcodes) */}
                 <div className={`w-10 h-6.5 overflow-hidden rounded-sm border ${borderClass} flex items-center justify-center ${theme === "light" ? "bg-slate-100" : "bg-zinc-900"} shrink-0 select-none drop-shadow-sm transition-all duration-500`}>
                   {(details.flagCode || "un").toLowerCase() === "un" ? (
-                    <span className="text-[13px] select-none leading-none">💀</span>
+                    <span className="text-base select-none leading-none">🏴‍☠️</span>
                   ) : (
                     /* eslint-disable-next-line @next/next/no-img-element */
                     <img
