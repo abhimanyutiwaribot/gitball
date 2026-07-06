@@ -1,36 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# GitBall 2026 ⚽🏆
+
+GitBall 2026 is a premium, minimalist developer scouting dashboard for the 2026 World Cup. It converts real-time public GitHub stats (stars, commits, streaks, followers) into collectible, custom-themed player cards using NVIDIA NIM AI models.
+
+---
+
+## Key Features
+
+- 🃏 **Fanned Card Showcase**: A sleek, overlapping player deck showcase on the landing hero section.
+- 🎨 **Dynamic Card Themes**: Custom-themed Gold, Silver, Legendary (Icon), and Bronze cards. Switch between **Light** and **Dark** designs on the fly with a sliding pill toggle.
+- 💫 **GPU-Accelerated 3D Hover**: Smooth hardware-accelerated mouse coordinate card tilt animations.
+- 📸 **High-Resolution PNG Exports**: Sharp `3x` pixel ratio downsampled PNG card images, ready to print or share.
+- 🔒 **API Security & Limits**: Strict GitHub username regex filters (against SSRF) and sliding-window rate limit checks (10 requests/min per IP) to protect AI completions.
+- 🎯 **Dynamic Server-Side SEO**: Dynamic metadata generation (`generateMetadata`) for dynamic route crawling and rich social share previews (X/Twitter, Slack).
+- 🔊 **Zero-Latency Audio Cues**: Retro arcade chimes synthesized in real-time using the browser Web Audio API.
+- 🐣 **Custom Easter Eggs**: Hardcoded 99-OVR Legendary cards for famous developers (Linus Torvalds, Evan You, Dan Abramov) and the creator (`abhimanyutiwaribot`), bypassing AI processing while preserving real profile photos.
+
+---
+
+## Tech Stack
+
+- **Framework**: Next.js (App Router, Server & Client Components)
+- **Runtime**: Bun
+- **Styling**: Tailwind CSS (v4)
+- **Animations**: Framer Motion
+- **Icons**: Lucide React
+- **Canvas Exporter**: HTML-to-Image
+
+---
 
 ## Getting Started
 
-First, run the development server:
-
+### 1. Clone & Install Dependencies
+Ensure you have [Bun](https://bun.sh) installed:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/abhimanyutiwaribot/gitball.git
+cd gitball
+bun install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Configure Environment Variables
+Copy `.env.example` to `.env` and fill in your keys:
+```bash
+cp .env.example .env
+```
+Open `.env` and add:
+- `NVIDIA_API_KEY`: Your NVIDIA NIM key (e.g. `nvapi-...`).
+- `GITHUB_TOKEN`: (Optional) Your GitHub Personal Access Token to prevent API rate limiting (increases limits from 60 to 5,000 requests/hour).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. Run Development Server
+```bash
+bun dev
+```
+Open [http://localhost:3000](http://localhost:3000) to see the dashboard.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 4. Build for Production
+```bash
+bun run build
+```
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## Deployment (Vercel)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The easiest way to deploy is through Vercel:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Import the repository on [vercel.com](https://vercel.com/new).
+2. Configure **Environment Variables** in the Vercel dashboard:
+   - `NVIDIA_API_KEY`
+   - `GITHUB_TOKEN` (optional)
+3. Deploy! Every commit pushed to `master` will trigger an automatic preview or production build.
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Made with ⚽ by [@abhimanyutwts](https://x.com/abhimanyutwts)
