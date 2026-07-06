@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Download, Share2, ArrowLeft, RotateCcw, AlertTriangle, Trophy } from "lucide-react";
 import { toPng } from "html-to-image";
 import confetti from "canvas-confetti";
-import GitballCard, { SkeletonFlag } from "../../../components/GitballCard";
+import GitballCard from "../../../components/GitballCard";
 import { CardDetails } from "../../../lib/cardUtils";
 import { ScoutData } from "../../../lib/github";
 
@@ -440,7 +440,7 @@ Scout yours here: ${window.location.origin}
                     >
                       <div className="w-44 h-28 sm:w-56 sm:h-36 overflow-hidden rounded-2xl border border-white/20 bg-zinc-900 flex items-center justify-center shadow-[0_25px_60px_rgba(0,0,0,0.9)] mb-6">
                         {(data.cardDetails.flagCode || "un").toLowerCase() === "un" ? (
-                          <SkeletonFlag />
+                          <span className="text-5xl sm:text-6xl select-none">💀</span>
                         ) : (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img

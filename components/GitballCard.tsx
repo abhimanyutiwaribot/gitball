@@ -81,29 +81,6 @@ const GitBallLogo = ({ theme = "dark" }: { theme?: "light" | "dark" }) => (
   </div>
 );
 
-// Custom vector Skeleton Flag (Jolly Roger / Pirate fallback) with smooth theme transitions
-export const SkeletonFlag = ({ theme = "dark" }: { theme?: "light" | "dark" }) => (
-  <svg viewBox="0 0 40 26" className="w-full h-full transition-colors duration-500" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect width="40" height="26" fill={theme === "light" ? "#f1f5f9" : "#0c0a09"} className="transition-all duration-500" />
-    {/* Crossed Bones */}
-    <line x1="8" y1="5" x2="32" y2="21" stroke={theme === "light" ? "#94a3b8" : "#e2e8f0"} strokeWidth="2.5" strokeLinecap="round" opacity="0.8" className="transition-all duration-500" />
-    <line x1="32" y1="5" x2="8" y2="21" stroke={theme === "light" ? "#94a3b8" : "#e2e8f0"} strokeWidth="2.5" strokeLinecap="round" opacity="0.8" className="transition-all duration-500" />
-    {/* Skull Backing */}
-    <circle cx="20" cy="12" r="5.5" fill={theme === "light" ? "#f1f5f9" : "#0c0a09"} className="transition-all duration-500" />
-    {/* Skull Head */}
-    <circle cx="20" cy="11" r="4.5" fill={theme === "light" ? "#475569" : "#f8fafc"} className="transition-all duration-500" />
-    <rect x="18.5" y="14" width="3" height="3.5" fill={theme === "light" ? "#475569" : "#f8fafc"} className="transition-all duration-500" />
-    {/* Eyes */}
-    <circle cx="18.2" cy="10.5" r="0.8" fill={theme === "light" ? "#ffffff" : "#000000"} className="transition-all duration-500" />
-    <circle cx="21.8" cy="10.5" r="0.8" fill={theme === "light" ? "#ffffff" : "#000000"} className="transition-all duration-500" />
-    {/* Nose */}
-    <path d="M20 11.8 L19.2 12.8 H20.8 Z" fill={theme === "light" ? "#ffffff" : "#000000"} className="transition-all duration-500" />
-    {/* Teeth/Jaw lines */}
-    <line x1="19.2" y1="15.5" x2="19.2" y2="17" stroke={theme === "light" ? "#ffffff" : "#000000"} strokeWidth="0.5" className="transition-all duration-500" />
-    <line x1="20" y1="15.5" x2="20" y2="17" stroke={theme === "light" ? "#ffffff" : "#000000"} strokeWidth="0.5" className="transition-all duration-500" />
-    <line x1="20.8" y1="15.5" x2="20.8" y2="17" stroke={theme === "light" ? "#ffffff" : "#000000"} strokeWidth="0.5" className="transition-all duration-500" />
-  </svg>
-);
 
 export default function GitballCard({ details, avatarUrl, username, name, theme = "dark" }: GitballCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
@@ -244,7 +221,7 @@ export default function GitballCard({ details, avatarUrl, username, name, theme 
                 {/* Flag Image (avoids broken Windows text shortcodes) */}
                 <div className={`w-10 h-6.5 overflow-hidden rounded-sm border ${borderClass} flex items-center justify-center ${theme === "light" ? "bg-slate-100" : "bg-zinc-900"} shrink-0 select-none drop-shadow-sm transition-all duration-500`}>
                   {(details.flagCode || "un").toLowerCase() === "un" ? (
-                    <SkeletonFlag theme={theme} />
+                    <span className="text-[13px] select-none leading-none">💀</span>
                   ) : (
                     /* eslint-disable-next-line @next/next/no-img-element */
                     <img
